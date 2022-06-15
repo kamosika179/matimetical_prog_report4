@@ -110,9 +110,14 @@ def local_search(target_array,selected_array):
     if len(good_neighborhoods) == 0:
         semi_optimum_solutions.append((selected_array,now_solution_value))
         return (selected_array,now_solution_value)
+    elif len(good_neighborhoods) == 1:
+        return local_search(target_array,good_neighborhoods[0])
     else:
+        tmp_multi_tuple = []
         for neigh in good_neighborhoods:
-            local_search(target_array,neigh)
+            tmp_multi_tuple.append(local_search(target_array,neigh))
+        #tmp_multi_tupleから最大のものを探す
+        return max(tmp_multi_tuple, key=lambda x: x[1])
 
 def multi_start_local_search(selected_array,first_solution_num,times):
     """
@@ -137,7 +142,7 @@ def multi_start_local_search(selected_array,first_solution_num,times):
     
 semi_optimum_solutions = []
 first_array = random_solution(target_array)
-local_search(target_array,first_array)
+print(local_search(target_array,first_array))
 print(semi_optimum_solutions)
 
 """
