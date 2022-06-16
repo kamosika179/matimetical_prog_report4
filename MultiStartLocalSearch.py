@@ -89,10 +89,14 @@ def local_search(target_array,selected_array):
     Parametors:
     -----------
     selected_array: int[]
-        誰がどの科目を選択するか指定するもの。0番目がAさんのもの、1番目がBさんのもの・・・と言った感じ
+        誰がどの科目を選択するか指定するもの。0番目がAさんのもの、1番目がBさんのもの・・・と言った感じ。初期の選択もここに入る
 
     target_array : int[]
         各個人の所要時間、0番目の0番目がAさんの英語にかかる時間、1番目の1番目がBさんの数学にかかる時間と言った感じ。
+
+    Returns:
+    min_combination : int
+        最小となる組み合わせと、その時の値を返す
     """
 
     neighborhoods = []
@@ -104,7 +108,7 @@ def local_search(target_array,selected_array):
 
     for num,lis in enumerate(neighborhoods):
         tmp_solution_value = calc_target_func(target_array,lis)
-        if now_solution_value < tmp_solution_value: #暫定解を残す
+        if now_solution_value > tmp_solution_value: #暫定解を残す
             good_neighborhoods.append(lis)
 
     if len(good_neighborhoods) == 0:
@@ -116,8 +120,8 @@ def local_search(target_array,selected_array):
         tmp_multi_tuple = []
         for neigh in good_neighborhoods:
             tmp_multi_tuple.append(local_search(target_array,neigh))
-        #tmp_multi_tupleから最大のものを探す
-        return max(tmp_multi_tuple, key=lambda x: x[1])
+        #tmp_multi_tupleか最小のものを探す
+        return min(tmp_multi_tuple, key=lambda x: x[1])
 
 def multi_start_local_search(selected_array,first_solution_num,times):
     """
