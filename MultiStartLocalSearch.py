@@ -1,6 +1,7 @@
 
 import random
 import copy
+import time
 
 #英語=1, 数学=2, 物理=3. 化学=4
 target_array = [[6,1,9,3],[2,5,7,8],[6,3,5,4],[3,5,2,1]] #各科目にかかる時間を示す、科目の十番は上と同様。1要素目Aさんのかかる時間、2要素目さん・・・といった感じ
@@ -122,7 +123,7 @@ def local_search(target_array,selected_array):
         #tmp_multi_tupleか最小のものを探す
         return min(tmp_multi_tuple, key=lambda x: x[1])
 
-def multi_start_local_search(target_array,first_solution_num,time):
+def multi_start_local_search(target_array,first_solution_num,time_limit):
     """
     多スタート局所探索方を行う
 
@@ -137,29 +138,22 @@ def multi_start_local_search(target_array,first_solution_num,time):
     time: int
         計算時間を指定する。終了条件として使う
     """
-    time_limit = time #制限時間
+
+    start_time = time.perf_counter()
     first_solutions = []
     for _ in range(first_solution_num):
         first_array = random_solution(target_array)
         first_solutions.append(local_search(target_array,first_array))
 
-    print(first_solutions)
-    return min(first_solutions, key=lambda x: x[1])
+        now_time = time.perf_counter()
+        if (now_time-start_time) > time_limit:
+            break
+
+    if len(first_solutions) == 0:
+        print("時間が短すぎます")
+    else:
+        print(len(first_solutions))
+        return min(first_solutions, key=lambda x: x[1])
         
 
-"""    
-first_array = random_solution(target_array)
-print(local_search(target_array,first_array))
-"""
-
-print(multi_start_local_search(target_array,3,0))
-
-"""
-for n in range(5):
-    selectd_array = random_solution(target_array)
-    calc_target_func(target_array,selectd_array)
-    print(calc_target_func(target_array,selectd_array))
-"""
-    
-
-
+print(multi_start_local_search(target_array,100,0.001))
