@@ -112,7 +112,6 @@ def local_search(target_array,selected_array):
             good_neighborhoods.append(lis)
 
     if len(good_neighborhoods) == 0:
-        semi_optimum_solutions.append((selected_array,now_solution_value))
         return (selected_array,now_solution_value)
     elif len(good_neighborhoods) == 1:
         return local_search(target_array,good_neighborhoods[0])
@@ -123,31 +122,37 @@ def local_search(target_array,selected_array):
         #tmp_multi_tupleか最小のものを探す
         return min(tmp_multi_tuple, key=lambda x: x[1])
 
-def multi_start_local_search(selected_array,first_solution_num,times):
+def multi_start_local_search(target_array,first_solution_num,time):
     """
     多スタート局所探索方を行う
 
     Parametors:
     -----------
-    selected_array: int[]
-        誰がどの科目を選択するか指定するもの。0番目がAさんのもの、1番目がBさんのもの・・・と言った感じ
-    
+    target_array : int[]
+        各個人の所要時間、0番目の0番目がAさんの英語にかかる時間、1番目の1番目がBさんの数学にかかる時間と言った感じ。
+
     first_solution_num: int
         いくつ初期解を生成するかを指定する
 
-    times: int
-        何回局所探索法をするのかを指定する。終了条件として使う
+    time: int
+        計算時間を指定する。終了条件として使う
     """
-
+    time_limit = time #制限時間
     first_solutions = []
     for _ in range(first_solution_num):
-        first_solutions.append(random_solution(selected_array))
+        first_array = random_solution(target_array)
+        first_solutions.append(local_search(target_array,first_array))
 
-    
-semi_optimum_solutions = []
+    print(first_solutions)
+    return min(first_solutions, key=lambda x: x[1])
+        
+
+"""    
 first_array = random_solution(target_array)
 print(local_search(target_array,first_array))
-print(semi_optimum_solutions)
+"""
+
+print(multi_start_local_search(target_array,3,0))
 
 """
 for n in range(5):
