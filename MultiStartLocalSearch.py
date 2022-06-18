@@ -1,6 +1,7 @@
 
 import random
 import copy
+import time
 
 #英語=1, 数学=2, 物理=3. 化学=4
 target_array = [[6,1,9,3],[2,5,7,8],[6,3,5,4],[3,5,2,1]] #各科目にかかる時間を示す、科目の十番は上と同様。1要素目Aさんのかかる時間、2要素目さん・・・といった感じ
@@ -89,10 +90,14 @@ def local_search(target_array,selected_array):
     Parametors:
     -----------
     selected_array: int[]
-        誰がどの科目を選択するか指定するもの。0番目がAさんのもの、1番目がBさんのもの・・・と言った感じ
+        誰がどの科目を選択するか指定するもの。0番目がAさんのもの、1番目がBさんのもの・・・と言った感じ。初期の選択もここに入る
 
     target_array : int[]
         各個人の所要時間、0番目の0番目がAさんの英語にかかる時間、1番目の1番目がBさんの数学にかかる時間と言った感じ。
+
+    Returns:
+    min_combination : int
+        最小となる組み合わせと、その時の値を返す
     """
 
     neighborhoods = []
@@ -104,11 +109,10 @@ def local_search(target_array,selected_array):
 
     for num,lis in enumerate(neighborhoods):
         tmp_solution_value = calc_target_func(target_array,lis)
-        if now_solution_value < tmp_solution_value: #暫定解を残す
+        if now_solution_value > tmp_solution_value: #暫定解を残す
             good_neighborhoods.append(lis)
 
     if len(good_neighborhoods) == 0:
-        semi_optimum_solutions.append((selected_array,now_solution_value))
         return (selected_array,now_solution_value)
     elif len(good_neighborhoods) == 1:
         return local_search(target_array,good_neighborhoods[0])
@@ -116,41 +120,40 @@ def local_search(target_array,selected_array):
         tmp_multi_tuple = []
         for neigh in good_neighborhoods:
             tmp_multi_tuple.append(local_search(target_array,neigh))
-        #tmp_multi_tupleから最大のものを探す
-        return max(tmp_multi_tuple, key=lambda x: x[1])
+        #tmp_multi_tupleか最小のものを探す
+        return min(tmp_multi_tuple, key=lambda x: x[1])
 
-def multi_start_local_search(selected_array,first_solution_num,times):
+def multi_start_local_search(target_array,first_solution_num,time_limit):
     """
     多スタート局所探索方を行う
 
     Parametors:
     -----------
-    selected_array: int[]
-        誰がどの科目を選択するか指定するもの。0番目がAさんのもの、1番目がBさんのもの・・・と言った感じ
-    
+    target_array : int[]
+        各個人の所要時間、0番目の0番目がAさんの英語にかかる時間、1番目の1番目がBさんの数学にかかる時間と言った感じ。
+
     first_solution_num: int
         いくつ初期解を生成するかを指定する
 
-    times: int
-        何回局所探索法をするのかを指定する。終了条件として使う
+    time: int
+        計算時間を指定する。終了条件として使う
     """
 
+    start_time = time.perf_counter()
     first_solutions = []
     for _ in range(first_solution_num):
-        first_solutions.append(random_solution(selected_array))
+        first_array = random_solution(target_array)
+        first_solutions.append(local_search(target_array,first_array))
 
-    
-semi_optimum_solutions = []
-first_array = random_solution(target_array)
-print(local_search(target_array,first_array))
-print(semi_optimum_solutions)
+        now_time = time.perf_counter()
+        if (now_time-start_time) > time_limit:
+            break
 
-"""
-for n in range(5):
-    selectd_array = random_solution(target_array)
-    calc_target_func(target_array,selectd_array)
-    print(calc_target_func(target_array,selectd_array))
-"""
-    
+    if len(first_solutions) == 0:
+        print("時間が短すぎます")
+    else:
+        print(len(first_solutions))
+        return min(first_solutions, key=lambda x: x[1])
+        
 
-
+print(multi_start_local_search(target_array,100,0.001))
