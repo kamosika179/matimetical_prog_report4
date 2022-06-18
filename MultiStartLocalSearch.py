@@ -96,7 +96,7 @@ def local_search(target_array,selected_array):
         各個人の所要時間、0番目の0番目がAさんの英語にかかる時間、1番目の1番目がBさんの数学にかかる時間と言った感じ。
 
     Returns:
-    min_combination : int
+    min_combination : (int[],int)
         最小となる組み合わせと、その時の値を返す
     """
 
@@ -140,20 +140,52 @@ def multi_start_local_search(target_array,first_solution_num,time_limit):
     """
 
     start_time = time.perf_counter()
-    first_solutions = []
+
+    first_solutions = [] #初期解が入る
+    solutions = [] #各々、局所探索法をした結果が入る
     for _ in range(first_solution_num):
         first_array = random_solution(target_array)
-        first_solutions.append(local_search(target_array,first_array))
+        first_solutions.append(first_array)
+        solutions.append(local_search(target_array,first_array))
 
         now_time = time.perf_counter()
         if (now_time-start_time) > time_limit:
             break
 
-    if len(first_solutions) == 0:
+    print("初期解の中で最良の解と、最悪の解")
+    first_solution_values =[]
+    for sol in first_solutions:
+        tmp_val = calc_target_func(target_array,sol)
+        first_solution_values.append(tmp_val)
+    
+    bad_solution_value = max(first_solution_values)
+    bad_solution_index =  first_solution_values.index(bad_solution_value)
+    good_solution_value = min(first_solution_values)
+    good_solution_index = first_solution_values.index(good_solution_value)
+
+    print("最悪の解、その時の値")
+    print(first_solutions[bad_solution_index])
+    print(bad_solution_value)
+
+    print("最良の解、その時の値")
+    print(first_solutions[good_solution_index])
+    print(good_solution_value)
+
+    print("------------")
+
+    if len(solutions) == 0:
         print("時間が短すぎます")
     else:
-        print(len(first_solutions))
-        return min(first_solutions, key=lambda x: x[1])
+        print("最終解の中での最良の解と、最悪の解")
+        print("最悪の解、その時の値")
+        tmp_max = max(solutions, key=lambda x: x[1])
+        print(tmp_max[0])
+        print(tmp_max[1])
+
+        print("最良の解、その時の値")
+        tmp_mix = min(solutions, key=lambda x: x[1])
+        print(tmp_mix[0])
+        print(tmp_mix[1])
         
 
-print(multi_start_local_search(target_array,100,0.001))
+multi_start_local_search(target_array,10,100)
