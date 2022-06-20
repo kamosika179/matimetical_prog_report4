@@ -1,3 +1,4 @@
+
 import random
 import time
 
@@ -100,24 +101,29 @@ def local_search(target_array,selected_array):
     """
 
     neighborhoods = []
+    good_neighborhoods = []
     for n in range(len(selected_array)-1):
         neighborhoods.append(perturbation(selected_array,n))
 
-    now_solution_value = (selected_array,calc_target_func(target_array,selected_array))
+    now_solution_value = calc_target_func(target_array,selected_array)
 
     for num,lis in enumerate(neighborhoods):
         tmp_solution_value = calc_target_func(target_array,lis)
-        if now_solution_value[1] > tmp_solution_value: 
-            now_solution_value = (lis,tmp_solution_value)
+        if now_solution_value > tmp_solution_value: #暫定解を残す
+            good_neighborhoods.append(lis)
 
-    if now_solution_value[1] == calc_target_func(target_array,selected_array):
-        #値に変化がないということは終了ということ
-        print(now_solution_value)
+    if len(good_neighborhoods) == 0:
+        return (selected_array,now_solution_value)
+    elif len(good_neighborhoods) == 1:
+        return local_search(target_array,good_neighborhoods[0])
     else:
-        local_search(target_array,now_solution_value[0])
+        tmp_multi_tuple = []
+        for neigh in good_neighborhoods:
+            tmp_multi_tuple.append(local_search(target_array,neigh))
+        #tmp_multi_tupleか最小のものを探す
+        return min(tmp_multi_tuple, key=lambda x: x[1])
 
 def multi_start_local_search(target_array,first_solution_num,time_limit):
-
     """
     多スタート局所探索方を行う
 
@@ -180,5 +186,6 @@ def multi_start_local_search(target_array,first_solution_num,time_limit):
         tmp_mix = min(solutions, key=lambda x: x[1])
         print(tmp_mix[0])
         print(tmp_mix[1])
+        
 
-local_search(target_array,random_solution(target_array))
+multi_start_local_search(target_array,10,100)
