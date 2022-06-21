@@ -188,4 +188,4 @@ def multi_start_local_search(target_array,first_solution_num,time_limit):
         print(tmp_mix[1])
         
 
-multi_start_local_search(target_array,10,100)
+multi_start_local_search(target_array,5,10)

@@ -112,9 +112,10 @@ def local_search(target_array,selected_array):
 
     if now_solution_value[1] == calc_target_func(target_array,selected_array):
         #値に変化がないということは終了ということ
-        print(now_solution_value)
+        #print(now_solution_value)
+        return now_solution_value
     else:
-        local_search(target_array,now_solution_value[0])
+        return local_search(target_array,now_solution_value[0])
 
 def multi_start_local_search(target_array,first_solution_num,time_limit):
 
@@ -129,7 +130,7 @@ def multi_start_local_search(target_array,first_solution_num,time_limit):
     first_solution_num: int
         いくつ初期解を生成するかを指定する
 
-    time: int
+    time_limit: int
         計算時間を指定する。終了条件として使う
     """
 
@@ -182,3 +183,8 @@ def multi_start_local_search(target_array,first_solution_num,time_limit):
         print(tmp_mix[1])
 
 local_search(target_array,random_solution(target_array))
+
+multi_start_local_search(target_array,5,100)
+
+
+
