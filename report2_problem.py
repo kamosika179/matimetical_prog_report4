@@ -96,7 +96,30 @@ def print_weight_and_value_sum(selected_items):
 
     return (weight_sum,value_sum)
 
+def perturbation(lists,selected_lists):
+    '''
+    摂動を行う。
+    左から順番に一つずつ選択するアイテムを変更していく？
+    このときにすでに選択したアイテムを選択しないように注意する
 
+    Parameter:
+        lists: List<Item>
+            アイテムすべてのリスト
+        selected_lists: List<Item>
+            選択されたアイテムのリスト
+    '''
+
+"""
+※流れ
+- set_itemsでアイテムのリストを作成する
+- random_first_solutionでアイテムを選択する（初期解にもなる）
+- perturbationは摂動を行う
+
+※注意
+set_itemsで作成されたものとrandom_first_solutionで作成されたリストはセット！（itemオブジェクトにis_selectedというプロパティがあるため)
+
+あああーーーわからんんーーーーーー
+"""
 
 tmp = set_items(alpha_item_info,alpha_restrict)
 
