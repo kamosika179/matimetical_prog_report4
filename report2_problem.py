@@ -1,6 +1,7 @@
 
 import random
 
+#問題3用
 
 alpha_item_info = [[3,7],[6,12],[5,9],[4,7],[8,13],[5,8],[3,4],[4,5]]
 alpha_restrict = 25
@@ -47,29 +48,58 @@ def random_first_solution(items):
     Parameter:
     ----------
     items: 
-        Itemオブジェクトの集合
+        Itemオブジェクトのリスト
 
     Return:
     ---------
     first_solution:
         ランダムな初期解
     '''
-    random_sequience_list = list(range(len(items)))
-    random.shuffle(random_sequience_list)
+    random_sequence_list = list(range(len(items)))
+    random.shuffle(random_sequence_list)
 
     tmp_value = 0
     tmp_wight = 0
     selected_items = []
 
-    for index in random_sequience_list:
+    for index in random_sequence_list:
         if items[index].weight + tmp_wight < Item.restrict:
             selected_items.append(items[index])
             tmp_wight += items[index].weight
             tmp_value += items[index].value
             items[index].is_selected = True
     
-    print(selected_items)
+    #print(selected_items)
+
+    return selected_items
+
+def print_weight_and_value_sum(selected_items):
+    '''
+    アイテムの重さと価値の合計値を返す
+
+    Parameter:
+        selected_items: List<Item>
+            アイテムのリスト
+    
+    Return:
+        weight_and_value_sum: tuple
+            重さと価値のタプル
+    '''
+
+    weight_sum = 0
+    value_sum = 0
+    for item in selected_items:
+        weight_sum += item.weight
+        value_sum += item.value
+    
+    print(f"重さの合計は:{weight_sum}\n価値の合計は:{value_sum}")
+
+    return (weight_sum,value_sum)
+
 
 
 tmp = set_items(alpha_item_info,alpha_restrict)
-random_first_solution(tmp)
+
+selec = random_first_solution(tmp)
+
+print_weight_and_value_sum(selec)
