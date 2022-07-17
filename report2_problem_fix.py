@@ -3,7 +3,7 @@ import random
 import copy
 
 
-#問題3用
+#問題4用 改良版
 
 alpha_item_info = [[3,7],[6,12],[5,9],[4,7],[8,13],[5,8],[3,4],[4,5]]
 alpha_restrict = 25
@@ -131,13 +131,13 @@ def perturbation(selected_list,change_num):
 
         unselected_items = [x for x in now_list if x.is_selected == False and x.weight <= afford_weight] #選択されなかった要素を取り出す
         
-
+        unselected_items = sorted(unselected_items,key=lambda x:x.value,reverse=True) #fix 価値の高い順に並び替える
         
         #新しく入れるアイテムを探す
         if len(unselected_items) == 0:
             get_item_name = None
         else:
-            get_item_name = random.choice(unselected_items).name #入れるアイテムを選択する
+            get_item_name = unselected_items[0].name #入れるアイテムを選択する
 
         #is_selectedを変更する
         if get_item_name != None:
@@ -186,6 +186,11 @@ def multi_local_search(item_info,item_restrict,count):
         tmp_list = copy.deepcopy(random_items)
         is_finish = False
         while(is_finish == False):
+            #すべての値を入れ替えるようにする
+            change_num = 0 
+            for t in tmp_list:
+                if t.is_selected == True:
+                    change_num += 1
             tmp_list = perturbation(tmp_list,change_num)
             tmp_weight,tmp_value = calc_weight_and_value_sum(tmp_list)
             if tmp_value <= now_value:
