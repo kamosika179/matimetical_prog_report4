@@ -1,5 +1,7 @@
 
 import random
+import copy
+
 
 #問題3用
 
@@ -62,18 +64,18 @@ def random_first_solution(items):
     tmp_wight = 0
     selected_items = []
 
+    new_list = copy.deepcopy(items)
     for index in random_sequence_list:
-        if items[index].weight + tmp_wight < Item.restrict:
-            selected_items.append(items[index])
+        if new_list[index].weight + tmp_wight <= Item.restrict:
             tmp_wight += items[index].weight
             tmp_value += items[index].value
-            items[index].is_selected = True
+            new_list[index].is_selected = True
     
     #print(selected_items)
 
-    return selected_items
+    return new_list
 
-def print_weight_and_value_sum(selected_items):
+def calc_weight_and_value_sum(selected_items):
     '''
     アイテムの重さと価値の合計値を返す
 
@@ -89,40 +91,120 @@ def print_weight_and_value_sum(selected_items):
     weight_sum = 0
     value_sum = 0
     for item in selected_items:
-        weight_sum += item.weight
-        value_sum += item.value
+        if item.is_selected == True:
+            weight_sum += item.weight
+            value_sum += item.value
     
-    print(f"重さの合計は:{weight_sum}\n価値の合計は:{value_sum}")
+    #print(f"重さの合計は:{weight_sum}\n価値の合計は:{value_sum}")
 
     return (weight_sum,value_sum)
 
-def perturbation(lists,selected_lists):
+def perturbation(selected_list,change_num):
     '''
     摂動を行う。
-    左から順番に一つずつ選択するアイテムを変更していく？
+    左から順番に一つずつ選択するアイテムを変更していく(n回,合計n通りの選択が作られる)
     このときにすでに選択したアイテムを選択しないように注意する
 
     Parameter:
-        lists: List<Item>
-            アイテムすべてのリスト
-        selected_lists: List<Item>
+        selected_list: List<Item>
             選択されたアイテムのリスト
+        change_num: Int
+            変更するアイテムの数（作成する通りの数）
+    Return :
+        return_list: List<Item>
+            摂動によって得られて一番良い組み合わせ
     '''
+    
+    new_lists = []
+    return_list = copy.deepcopy(selected_list) #戻り値、最も価値の大きかった組み合わせが入る
+    for _ in range(change_num):
+        new_lists.append(copy.deepcopy(selected_list))
 
-"""
-※流れ
-- set_itemsでアイテムのリストを作成する
-- random_first_solutionでアイテムを選択する（初期解にもなる）
-- perturbationは摂動を行う
+    now_weight,now_value = calc_weight_and_value_sum(selected_list) #現在の重さ
+    afford_weight = Item.restrict - now_weight #残り入る量
 
-※注意
-set_itemsで作成されたものとrandom_first_solutionで作成されたリストはセット！（itemオブジェクトにis_selectedというプロパティがあるため)
+    #順番に選択するアイテムを変更する
+    for order,now_list in enumerate(new_lists):
+        selected_items = [x for x in now_list if x.is_selected == True]  #選択されたアイテムを取りだす
+        selected_item_name = selected_items[order].name #取り出すアイテム名を探す
+        afford_weight += selected_items[order].weight
 
-あああーーーわからんんーーーーーー
-"""
+        unselected_items = [x for x in now_list if x.is_selected == False and x.weight <= afford_weight] #選択されなかった要素を取り出す
+        
 
-tmp = set_items(alpha_item_info,alpha_restrict)
+        
+        #新しく入れるアイテムを探す
+        if len(unselected_items) == 0:
+            get_item_name = None
+        else:
+            get_item_name = random.choice(unselected_items).name #入れるアイテムを選択する
 
-selec = random_first_solution(tmp)
+        #is_selectedを変更する
+        if get_item_name != None:
+            for item in now_list:
+                if item.name == selected_item_name:
+                    item.is_selected = False
+                if item.name == get_item_name:
+                    item.is_selected = True
 
-print_weight_and_value_sum(selec)
+            tmp_value = 0
+            tmp_weight = 0
+            for item in now_list:  
+                if item.is_selected == True:
+                    tmp_value += item.value
+                    tmp_weight += item.weight
+            #価値を更新しているか調べる
+            if tmp_value > now_value:
+                now_value = tmp_value
+                return_list = copy.deepcopy(now_list)
+        afford_weight = Item.restrict - now_weight
+
+    return return_list
+    calc_weight_and_value_sum(return_list)
+        
+def multi_local_search(item_info,item_restrict,count):
+    """
+    局所探索を行う
+    Parametor:
+    item_info
+        アイテムの情報をリストで表したもの、0番目に重さ、1番目に価値を持つリストの集合
+    item_restrict
+        重さの制限を指定する
+    count
+        初期解の数
+    """
+    first_solutions_weight_and_value = []
+    result_local_search_weight_and_value = []
+    change_num = 3
+    for order in range(count):
+        tmp_items = set_items(alpha_item_info,alpha_restrict)
+        random_items = random_first_solution(tmp_items)
+        now_weight = calc_weight_and_value_sum(random_items)[0]
+        now_value = calc_weight_and_value_sum(random_items)[1]
+        first_solutions_weight_and_value.append((now_weight,now_value))
+
+        tmp_list = copy.deepcopy(random_items)
+        is_finish = False
+        while(is_finish == False):
+            tmp_list = perturbation(tmp_list,change_num)
+            tmp_weight,tmp_value = calc_weight_and_value_sum(tmp_list)
+            if tmp_value <= now_value:
+                is_finish = True
+                result_local_search_weight_and_value.append((tmp_weight,tmp_value))
+            else:
+                now_value = tmp_value
+        
+
+    #first_solutions_weight_and_values,result_local_search_weight_and_valueをまとめる
+    first_solutions_weight_and_value = sorted(first_solutions_weight_and_value, key=lambda x: x[1])
+    print(f"初期解の中で最良の価値と、最悪の価値\n最悪の価値:{first_solutions_weight_and_value[0][1]}\n最良の価値:{first_solutions_weight_and_value[-1][1]}")
+    result_local_search_weight_and_value = sorted(result_local_search_weight_and_value,key=lambda x:x[1])
+    print(f"最終解の中で最良の価値と、最悪の価値\n最悪の価値:{result_local_search_weight_and_value[0][1]}\n最良の価値:{result_local_search_weight_and_value[-1][1]}")
+    
+print("αの問題を解く")
+multi_local_search(alpha_item_info,alpha_restrict,5)
+
+
+print("\n")
+print("βの問題を解く")
+multi_local_search(beta_item_info,beta_restrict,5)
